@@ -1,4 +1,4 @@
-package ftauth
+package ftapi
 
 import (
 	"bytes"
@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 
@@ -30,11 +31,11 @@ type ClientCredentials struct {
 }
 
 var oauthConfig *oauth2.Config
-var oauthStateString = "kakkorvarflygerhem"
+var oauthStateString = "fddfdk234kjk342kk542l342vh23j23gc498jg3hkb2knlk32"
 var httpServer http.Server
 var clientCredentials ClientCredentials
 
-func Init() {
+func BeginAuthorizationFlow() {
 	endpoint := oauth2.Endpoint{AuthURL: "https://api.intra.42.fr/oauth/authorize"}
 	oauthConfig = &oauth2.Config{
 		RedirectURL:  "http://localhost:8080/callback",
@@ -44,9 +45,7 @@ func Init() {
 		Endpoint:     endpoint,
 	}
 	fmt.Println("Open http://localhost:8080 to continue.")
-}
 
-func RequestAuth() {
 	mux := http.NewServeMux()
 	httpServer = http.Server{Addr: ":8080", Handler: mux}
 
@@ -54,15 +53,17 @@ func RequestAuth() {
 	mux.HandleFunc("/login", handleLogin)
 	mux.HandleFunc("/callback", handleCallback)
 	err := httpServer.ListenAndServe()
-	if err != nil {
-		fmt.Println("server closed")
+	if err != nil && err != http.ErrServerClosed {
+		log.Fatal(err)
 	}
 }
 
 func handleMain(w http.ResponseWriter, r *http.Request) {
 	var html = `<html>
 <body>
+<center>
 	<a href="/login">42 Auth login</a>
+</center>
 </body>
 </html>`
 	fmt.Fprintf(w, html)
@@ -75,18 +76,12 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 
 func handleCallback(w http.ResponseWriter, r *http.Request) {
 	requestClientCredentials(r.FormValue("state"), r.FormValue("code"))
-	var html = `<html>
-<body>
-	Success
-</body>
-</html>`
-	fmt.Fprintf(w, html)
-	//token := getAccessToken(r.FormValue("state"), r.FormValue("code"))
-	//fmt.Println("token:", token)
-	err := httpServer.Shutdown(context.Background())
-	if err != nil {
-		fmt.Println("error shutting down server!")
-	}
+	w.Write([]byte("Success"))
+	go func() {
+		if err := httpServer.Shutdown(context.Background()); err != nil {
+			log.Fatal(err)
+		}
+	}()
 }
 
 func requestClientCredentials(state string, code string) {
