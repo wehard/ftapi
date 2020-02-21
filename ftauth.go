@@ -2,6 +2,7 @@ package ftauth
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -30,6 +31,8 @@ type ClientCredentials struct {
 
 var oauthConfig *oauth2.Config
 var oauthStateString = "kakkorvarflygerhem"
+var httpServer http.Server
+var clientCredentials ClientCredentials
 
 func Init() {
 	endpoint := oauth2.Endpoint{AuthURL: "https://api.intra.42.fr/oauth/authorize"}
@@ -44,12 +47,15 @@ func Init() {
 }
 
 func RequestAuth() {
-	http.HandleFunc("/", handleMain)
-	http.HandleFunc("/login", handleLogin)
-	http.HandleFunc("/callback", handleCallback)
-	err := http.ListenAndServe(":8080", nil)
+	mux := http.NewServeMux()
+	httpServer = http.Server{Addr: ":8080", Handler: mux}
+
+	mux.HandleFunc("/", handleMain)
+	mux.HandleFunc("/login", handleLogin)
+	mux.HandleFunc("/callback", handleCallback)
+	err := httpServer.ListenAndServe()
 	if err != nil {
-		panic(err)
+		fmt.Println("server closed")
 	}
 }
 
@@ -68,11 +74,22 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleCallback(w http.ResponseWriter, r *http.Request) {
-	token := getAccessToken(r.FormValue("state"), r.FormValue("code"))
-	fmt.Println("token: ", token)
+	requestClientCredentials(r.FormValue("state"), r.FormValue("code"))
+	var html = `<html>
+<body>
+	Success
+</body>
+</html>`
+	fmt.Fprintf(w, html)
+	//token := getAccessToken(r.FormValue("state"), r.FormValue("code"))
+	//fmt.Println("token:", token)
+	err := httpServer.Shutdown(context.Background())
+	if err != nil {
+		fmt.Println("error shutting down server!")
+	}
 }
 
-func getAccessToken(state string, code string) string {
+func requestClientCredentials(state string, code string) {
 	if state != oauthStateString {
 		fmt.Println("invalid oauth state")
 	}
@@ -93,10 +110,12 @@ func getAccessToken(state string, code string) string {
 	if err != nil {
 		fmt.Println("could not read response body!")
 	}
-	var clientCredentials ClientCredentials
 	err = json.Unmarshal(contents, &clientCredentials)
 	if err != nil {
 		fmt.Println("could not unmarshal body content!")
 	}
-	return clientCredentials.AccessToken
+}
+
+func GetClientCredentials() ClientCredentials {
+	return clientCredentials
 }
