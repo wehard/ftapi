@@ -1,6 +1,10 @@
 package ftapi
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"fmt"
+	"strconv"
+)
 
 type UserData struct {
 	Achievements []struct {
@@ -116,6 +120,13 @@ type UserData struct {
 	Wallet      int           `json:"wallet"`
 }
 
+func GetAuthorizedUserData(accessToken string) UserData {
+	bytes := DoFTRequest("/v2/me", accessToken)
+	var userData UserData
+	json.Unmarshal(bytes, &userData)
+	return userData
+}
+
 func GetUserData(login string, accessToken string) UserData {
 	bytes := DoFTRequest("/v2/users/"+login, accessToken)
 	var userData UserData
@@ -123,9 +134,15 @@ func GetUserData(login string, accessToken string) UserData {
 	return userData
 }
 
-func GetAuthorizedUserData(accessToken string) UserData {
-	bytes := DoFTRequest("/v2/me", accessToken)
-	var userData UserData
-	json.Unmarshal(bytes, &userData)
-	return userData
+func GetCampusUsers(campusID int, accessToken string) []int {
+	i := 1
+	for {
+		bytes := DoFTRequest("/v2/campus/"+strconv.Itoa(campusID)+"/users?page="+strconv.Itoa(i), accessToken)
+		fmt.Println(len(bytes))
+		if len(bytes) <= 2 {
+			break
+		}
+		i++
+	}
+	return nil
 }
