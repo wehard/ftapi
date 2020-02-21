@@ -35,7 +35,7 @@ var oauthStateString = "fddfdk234kjk342kk542l342vh23j23gc498jg3hkb2knlk32"
 var httpServer http.Server
 var clientCredentials ClientCredentials
 
-func BeginAuthorizationFlow() {
+func Authorize() ClientCredentials {
 	endpoint := oauth2.Endpoint{AuthURL: "https://api.intra.42.fr/oauth/authorize"}
 	oauthConfig = &oauth2.Config{
 		RedirectURL:  "http://localhost:8080/callback",
@@ -56,13 +56,14 @@ func BeginAuthorizationFlow() {
 	if err != nil && err != http.ErrServerClosed {
 		log.Fatal(err)
 	}
+	return clientCredentials
 }
 
 func handleMain(w http.ResponseWriter, r *http.Request) {
 	var html = `<html>
 <body>
 <center>
-	<a href="/login">42 Auth login</a>
+	<a href="/login">42 Login</a>
 </center>
 </body>
 </html>`
@@ -76,7 +77,14 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 
 func handleCallback(w http.ResponseWriter, r *http.Request) {
 	requestClientCredentials(r.FormValue("state"), r.FormValue("code"))
-	w.Write([]byte("Success"))
+	var html = `<html>
+<body>
+<center>
+	<h1>Success</h1></br>You can now close this window.
+</center>
+</body>
+</html>`
+	fmt.Fprintf(w, html)
 	go func() {
 		if err := httpServer.Shutdown(context.Background()); err != nil {
 			log.Fatal(err)
