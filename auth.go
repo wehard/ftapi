@@ -98,8 +98,8 @@ func requestClientCredentials(state string, code string) {
 	}
 	codeRequest := CodeRequest{
 		GrantType:    "authorization_code",
-		ClientID:     os.Getenv("HM_CLIENT_ID"),
-		ClientSecret: os.Getenv("HM_CLIENT_SECRET"),
+		ClientID:     os.Getenv("FT_CLIENT_ID"),
+		ClientSecret: os.Getenv("FT_CLIENT_SECRET"),
 		Code:         code,
 		RedirectURI:  oauthConfig.RedirectURL,
 		State:        oauthStateString,
