@@ -39,8 +39,8 @@ func Authorize() ClientCredentials {
 	endpoint := oauth2.Endpoint{AuthURL: "https://api.intra.42.fr/oauth/authorize"}
 	oauthConfig = &oauth2.Config{
 		RedirectURL:  "http://localhost:8080/callback",
-		ClientID:     os.Getenv("HM_CLIENT_ID"),
-		ClientSecret: os.Getenv("HM_CLIENT_SECRET"),
+		ClientID:     os.Getenv("FT_CLIENT_ID"),
+		ClientSecret: os.Getenv("FT_CLIENT_SECRET"),
 		Scopes:       []string{},
 		Endpoint:     endpoint,
 	}
