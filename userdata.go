@@ -149,12 +149,14 @@ func RequestCampusUsers(campusID int, accessToken string) []CampusUser {
 		if len(bytes) <= 2 {
 			break
 		}
-		var campusUser CampusUser
-		err := json.Unmarshal(bytes, &campusUser)
+		campusUserPage := make([]CampusUser, 0)
+		err := json.Unmarshal(bytes, &campusUserPage)
 		if err != nil {
 			fmt.Println(err)
 		}
-		campusUsers = append(campusUsers, campusUser)
+		for i := range campusUserPage {
+			campusUsers = append(campusUsers, campusUserPage[i])
+		}
 		i++
 	}
 	return campusUsers
