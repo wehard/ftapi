@@ -3,6 +3,7 @@ package ftapi
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"strconv"
 )
 
@@ -120,6 +121,12 @@ type UserData struct {
 	Wallet      int           `json:"wallet"`
 }
 
+type CampusUser struct {
+	ID    int    `json:"id"`
+	Login string `json:"login"`
+	URL   string `json:"url"`
+}
+
 func GetAuthorizedUserData(accessToken string) UserData {
 	bytes := DoFTRequest("/v2/me", accessToken)
 	var userData UserData
@@ -127,22 +134,51 @@ func GetAuthorizedUserData(accessToken string) UserData {
 	return userData
 }
 
-func GetUserData(login string, accessToken string) UserData {
+func RequestUserData(login string, accessToken string) UserData {
 	bytes := DoFTRequest("/v2/users/"+login, accessToken)
 	var userData UserData
 	json.Unmarshal(bytes, &userData)
 	return userData
 }
 
-func GetCampusUsers(campusID int, accessToken string) []int {
+func RequestCampusUsers(campusID int, accessToken string) []CampusUser {
+	campusUsers := make([]CampusUser, 0)
 	i := 1
 	for {
 		bytes := DoFTRequest("/v2/campus/"+strconv.Itoa(campusID)+"/users?page="+strconv.Itoa(i), accessToken)
-		fmt.Println(len(bytes))
 		if len(bytes) <= 2 {
 			break
 		}
+		var campusUser CampusUser
+		err := json.Unmarshal(bytes, &campusUser)
+		if err != nil {
+			fmt.Println(err)
+		}
+		campusUsers = append(campusUsers, campusUser)
 		i++
 	}
-	return nil
+	return campusUsers
+}
+
+func LoadUserData(filename string) ([]UserData, error) {
+	var userData []UserData
+	bytes, err := ioutil.ReadFile(filename)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	err = json.Unmarshal(bytes, &userData)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	return userData, nil
+}
+
+func SaveUserData(filename string, userData []UserData) {
+	jsonString, err := json.Marshal(userData)
+	if err != nil {
+		panic(err)
+	}
+	ioutil.WriteFile(filename, jsonString, 0644)
 }
