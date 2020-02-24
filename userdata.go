@@ -162,8 +162,8 @@ func RequestCampusUsers(campusID int, accessToken string) []CampusUser {
 	return campusUsers
 }
 
-func LoadUserData(filename string) ([]UserData, error) {
-	var userData []UserData
+func LoadUserData(filename string) (map[string]UserData, error) {
+	var userData map[string]UserData
 	bytes, err := ioutil.ReadFile(filename)
 	if err != nil {
 		fmt.Println(err)
