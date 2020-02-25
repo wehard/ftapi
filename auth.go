@@ -35,6 +35,10 @@ var oauthStateString = "fddfdk234kjk342kk542l342vh23j23gc498jg3hkb2knlk32"
 var httpServer http.Server
 var clientCredentials ClientCredentials
 
+const (
+	Hive = 13
+)
+
 func Authorize() ClientCredentials {
 	endpoint := oauth2.Endpoint{AuthURL: "https://api.intra.42.fr/oauth/authorize"}
 	oauthConfig = &oauth2.Config{

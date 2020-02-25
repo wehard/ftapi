@@ -162,8 +162,20 @@ func RequestCampusUsers(campusID int, accessToken string) []CampusUser {
 	return campusUsers
 }
 
-func LoadUserData(filename string) (map[string]UserData, error) {
-	var userData map[string]UserData
+func RequestAllCampusUsersData(campusID int, accessToken string) []UserData {
+	campusUsers := RequestCampusUsers(campusID, accessToken)
+	userData := make([]UserData, 0)
+	for _, campusUser := range campusUsers {
+		fmt.Print(".")
+		u := RequestUserData(campusUser.Login, accessToken)
+		userData = append(userData, u)
+	}
+	fmt.Print("\n")
+	return userData
+}
+
+func LoadUserData(filename string) ([]UserData, error) {
+	userData := make([]UserData, 0)
 	bytes, err := ioutil.ReadFile(filename)
 	if err != nil {
 		fmt.Println(err)
