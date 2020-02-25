@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 
 	"golang.org/x/oauth2"
 )
@@ -49,6 +50,8 @@ func Authorize() ClientCredentials {
 		Endpoint:     endpoint,
 	}
 	fmt.Println("Open http://localhost:8080 to continue.")
+	cmd := exec.Command("chromium", "http://localhost:8080")
+	cmd.Run()
 
 	mux := http.NewServeMux()
 	httpServer = http.Server{Addr: ":8080", Handler: mux}
