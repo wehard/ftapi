@@ -111,6 +111,7 @@ func requestClientCredentials(state string, code string) {
 		RedirectURI:  oauthConfig.RedirectURL,
 		State:        oauthStateString,
 	}
+	fmt.Println("code: ", code)
 	jsonBytes, _ := json.Marshal(codeRequest)
 	response, err := http.Post("https://api.intra.42.fr/oauth/token", "application/json", bytes.NewBuffer(jsonBytes))
 	if err != nil {

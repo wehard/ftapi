@@ -7,6 +7,11 @@ import (
 	"strconv"
 )
 
+const (
+	FortyTwo = 1
+	Piscine  = 4
+)
+
 type UserData struct {
 	Achievements []struct {
 		Description  string      `json:"description"`
@@ -195,4 +200,43 @@ func SaveUserData(filename string, userData []UserData) {
 		panic(err)
 	}
 	ioutil.WriteFile(filename, jsonString, 0644)
+}
+
+func GetUserDataByLevel(level int, cursusID int, allUserData []UserData) []UserData {
+	userData := make([]UserData, 0)
+	for _, u := range allUserData {
+		if len(u.CursusUsers) == 0 {
+			continue
+		}
+		for i, _ := range u.CursusUsers {
+			if u.CursusUsers[i].CursusID == cursusID && u.CursusUsers[i].Level < float64(level+1) && u.CursusUsers[i].Level >= float64(level) {
+				userData = append(userData, u)
+			}
+		}
+	}
+	return userData
+}
+
+func GetUserData(compareFunc func(int, float64) bool, allUserData []UserData) []UserData {
+	userData := make([]UserData, 0)
+	for _, u := range allUserData {
+		if len(u.CursusUsers) == 0 {
+			continue
+		}
+		for i, _ := range u.CursusUsers {
+			if compareFunc(u.CursusUsers[i].CursusID, u.CursusUsers[i].Level) {
+				userData = append(userData, u)
+			}
+		}
+	}
+	return userData
+}
+
+func GetUserLevel(user UserData, cursusID int) float64 {
+	for i, _ := range user.CursusUsers {
+		if user.CursusUsers[i].CursusID == cursusID {
+			return user.CursusUsers[i].Level
+		}
+	}
+	return -1.0
 }
