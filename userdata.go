@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"math/rand"
 	"strconv"
 )
 
@@ -11,6 +12,12 @@ const (
 	FortyTwo = 1
 	Piscine  = 4
 )
+
+type Skill struct {
+	ID    int     `json:"id"`
+	Level float64 `json:"level"`
+	Name  string  `json:"name"`
+}
 
 type UserData struct {
 	Achievements []struct {
@@ -67,12 +74,8 @@ type UserData struct {
 		HasCoalition bool        `json:"has_coalition"`
 		ID           int         `json:"id"`
 		Level        float64     `json:"level"`
-		Skills       []struct {
-			ID    int     `json:"id"`
-			Level float64 `json:"level"`
-			Name  string  `json:"name"`
-		} `json:"skills"`
-		User struct {
+		Skills       []Skill     `json:"skills"`
+		User         struct {
 			ID    int    `json:"id"`
 			Login string `json:"login"`
 			URL   string `json:"url"`
@@ -239,4 +242,21 @@ func GetUserLevel(user UserData, cursusID int) float64 {
 		}
 	}
 	return -1.0
+}
+
+func GetUserSkills(user UserData, cursusID int) []Skill {
+	skills := make([]Skill, 0)
+	for i, _ := range user.CursusUsers {
+		if user.CursusUsers[i].CursusID == cursusID {
+			for s, _ := range user.CursusUsers[i].Skills {
+				skills = append(skills, user.CursusUsers[i].Skills[s])
+			}
+		}
+	}
+	return skills
+}
+
+func GetRandomUserSkill(user UserData, cursusID int) Skill {
+	skills := GetUserSkills(user, cursusID)
+	return skills[rand.Intn(len(skills)-1)]
 }
