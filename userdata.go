@@ -220,6 +220,21 @@ func GetUserDataByLevel(level int, cursusID int, allUserData []UserData) []UserD
 	return userData
 }
 
+func GetUserDataByCursus(cursusID int, allUserData []UserData) []UserData {
+	userData := make([]UserData, 0)
+	for _, u := range allUserData {
+		if len(u.CursusUsers) == 0 {
+			continue
+		}
+		for i, _ := range u.CursusUsers {
+			if u.CursusUsers[i].CursusID == cursusID && u.CursusUsers[i].Level > 0 {
+				userData = append(userData, u)
+			}
+		}
+	}
+	return userData
+}
+
 func GetUserData(compareFunc func(int, float64) bool, allUserData []UserData) []UserData {
 	userData := make([]UserData, 0)
 	for _, u := range allUserData {
@@ -233,6 +248,16 @@ func GetUserData(compareFunc func(int, float64) bool, allUserData []UserData) []
 		}
 	}
 	return userData
+}
+
+func GetUserDataByLogin(login string, allUserData []UserData) UserData {
+	for _, u := range allUserData {
+		if u.Login == login {
+			return u
+		}
+	}
+	fmt.Println("user not found")
+	return UserData{}
 }
 
 func GetUserLevel(user UserData, cursusID int) float64 {
