@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 )
 
 func DoFTRequest(endpoint string, accessToken string) []byte {
@@ -20,6 +21,13 @@ func DoFTRequest(endpoint string, accessToken string) []byte {
 	}
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		fmt.Println("ft request:", err)
+	}
+	if resp.StatusCode == http.StatusTooManyRequests {
+		fmt.Println("ft request error: too many requests!")
+	}
 	body, _ := ioutil.ReadAll(resp.Body)
+	time.Sleep(500 * time.Millisecond)
 	return (body)
 }

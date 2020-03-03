@@ -160,13 +160,15 @@ func RequestCampusUsers(campusID int, accessToken string) []CampusUser {
 		campusUserPage := make([]CampusUser, 0)
 		err := json.Unmarshal(bytes, &campusUserPage)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("request campus user: ", err)
 		}
 		for i := range campusUserPage {
 			campusUsers = append(campusUsers, campusUserPage[i])
 		}
+		fmt.Print(".")
 		i++
 	}
+	fmt.Print("\n")
 	return campusUsers
 }
 
@@ -203,6 +205,21 @@ func SaveUserData(filename string, userData []UserData) {
 		panic(err)
 	}
 	ioutil.WriteFile(filename, jsonString, 0644)
+}
+
+func LoadAccessToken(filename string) string {
+	bytes, err := ioutil.ReadFile(filename)
+	if err != nil {
+		fmt.Println(err)
+		return ""
+	}
+	token := string(bytes)
+	fmt.Println("token loaded", token)
+	return token
+}
+
+func SaveAccessToken(filename, token string) {
+	ioutil.WriteFile(filename, []byte(token), 0644)
 }
 
 func GetUserDataByLevel(level int, cursusID int, allUserData []UserData) []UserData {
