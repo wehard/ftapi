@@ -132,8 +132,9 @@ func GetClientCredentials() ClientCredentials {
 }
 
 func VerifyToken(token string) bool {
-	_, s := DoFTRequest("/v2/me", token)
+	data, s := DoFTRequest("/v2/me", token)
 	if s != http.StatusOK {
+		fmt.Println(string(data))
 		return false
 	}
 	return true
