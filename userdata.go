@@ -136,14 +136,14 @@ type CampusUser struct {
 }
 
 func GetAuthorizedUserData(accessToken string) UserData {
-	bytes := DoFTRequest("/v2/me", accessToken)
+	bytes, _ := DoFTRequest("/v2/me", accessToken)
 	var userData UserData
 	json.Unmarshal(bytes, &userData)
 	return userData
 }
 
 func RequestUserData(login string, accessToken string) UserData {
-	bytes := DoFTRequest("/v2/users/"+login, accessToken)
+	bytes, _ := DoFTRequest("/v2/users/"+login, accessToken)
 	var userData UserData
 	json.Unmarshal(bytes, &userData)
 	return userData
@@ -153,7 +153,7 @@ func RequestCampusUsers(campusID int, accessToken string) []CampusUser {
 	campusUsers := make([]CampusUser, 0)
 	i := 1
 	for {
-		bytes := DoFTRequest("/v2/campus/"+strconv.Itoa(campusID)+"/users?page="+strconv.Itoa(i), accessToken)
+		bytes, _ := DoFTRequest("/v2/campus/"+strconv.Itoa(campusID)+"/users?page="+strconv.Itoa(i), accessToken)
 		if len(bytes) <= 2 {
 			break
 		}

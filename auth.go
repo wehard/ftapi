@@ -130,3 +130,11 @@ func requestClientCredentials(state string, code string) {
 func GetClientCredentials() ClientCredentials {
 	return clientCredentials
 }
+
+func VerifyToken(token string) bool {
+	_, s := DoFTRequest("/v2/me", token)
+	if s != http.StatusOK {
+		return false
+	}
+	return true
+}

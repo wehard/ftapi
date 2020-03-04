@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func DoFTRequest(endpoint string, accessToken string) []byte {
+func DoFTRequest(endpoint string, accessToken string) ([]byte, int) {
 	var data struct {
 		Token string `json:"access_token"`
 	}
@@ -24,10 +24,13 @@ func DoFTRequest(endpoint string, accessToken string) []byte {
 	if err != nil {
 		fmt.Println("ft request:", err)
 	}
+	if resp.StatusCode == http.StatusUnauthorized {
+		fmt.Println("ft request error: unauthorized")
+	}
 	if resp.StatusCode == http.StatusTooManyRequests {
 		fmt.Println("ft request error: too many requests!")
 	}
 	body, _ := ioutil.ReadAll(resp.Body)
 	time.Sleep(500 * time.Millisecond)
-	return (body)
+	return body, resp.StatusCode
 }
